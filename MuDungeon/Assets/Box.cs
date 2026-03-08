@@ -23,10 +23,31 @@ public class Box : MonoBehaviour
         gridPos = nextPos;
         transform.position = (Vector2)gridPos;
 
+        // 목표 지점 위에 있으면 색 변경
+        UpdateColor();
+
         // 승리 판정 요청
         LevelManager.Instance.CheckWin();
 
         return true;
+    }
+
+    void UpdateColor()
+    {
+        bool onGoal = false;
+        Goal[] goals = FindObjectsByType<Goal>(FindObjectsSortMode.None);
+        foreach (Goal goal in goals)
+        {
+            if (goal.GetGridPos() == gridPos)
+            {
+                onGoal = true;
+                break;
+            }
+        }
+
+        GetComponent<SpriteRenderer>().color = onGoal
+            ? new Color(0.2f, 1f, 0.4f)    // 목표 위 - 초록색
+            : new Color(1f, 0.6f, 0.1f);   // 기본 - 주황색
     }
 
     public Vector2Int GetGridPos() => gridPos;
