@@ -280,6 +280,8 @@ MonoBehaviour:
   playerPrefab: {fileID: 9105256955976038881, guid: 65f82cb4fb34d9b4c8854c823abea9b9, type: 3}
   boxPrefab: {fileID: 4693174476270972160, guid: c1a69dfa3b7ff8f4ba4824ce83d9ca32, type: 3}
   goalPrefab: {fileID: 1835272040388108955, guid: 814a8ad7feb3b274aa8298e30834b1a6, type: 3}
+  spikePrefab: {fileID: 2651356498695479487, guid: 212bada208f64b048b83efbba0e7f06d, type: 3}
+  crumblingTilePrefab: {fileID: 1806700619609446818, guid: 8f5b264269687ac4cab24f7589c97196, type: 3}
 --- !u!114 &518851304
 MonoBehaviour:
   m_ObjectHideFlags: 0
