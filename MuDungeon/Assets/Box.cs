@@ -19,11 +19,19 @@ public class Box : MonoBehaviour
         if (hit != null && (hit.CompareTag("Wall") || hit.GetComponent<Box>() != null))
             return false; // 못 밀어
 
+        // 이전 위치 가시 체크 - 상자 치우면 다시 위험
+        UpdateSpikeAt(gridPos, false);
+
         // 이동
         gridPos = nextPos;
         transform.position = (Vector2)gridPos;
 
         // 목표 지점 위에 있으면 색 변경
+        UpdateColor();
+
+        // 새 위치 가시 체크 - 상자가 덮으면 안전
+        UpdateSpikeAt(gridPos, true);
+
         UpdateColor();
 
         // 승리 판정 요청
@@ -51,4 +59,14 @@ public class Box : MonoBehaviour
     }
 
     public Vector2Int GetGridPos() => gridPos;
+
+    void UpdateSpikeAt(Vector2Int pos, bool covered)
+    {
+        Spike[] spikes = FindObjectsByType<Spike>(FindObjectsSortMode.None);
+        foreach (Spike spike in spikes)
+        {
+            if (spike.GetGridPos() == pos)
+                spike.SetCovered(covered);
+        }
+    }
 }

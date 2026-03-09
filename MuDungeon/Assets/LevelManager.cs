@@ -10,6 +10,8 @@ public class LevelManager : MonoBehaviour
     public GameObject playerPrefab;
     public GameObject boxPrefab;
     public GameObject goalPrefab;
+    public GameObject spikePrefab;
+    public GameObject crumblingTilePrefab;
 
     private Box[] boxes;
     private Goal[] goals;
@@ -68,6 +70,8 @@ public class LevelManager : MonoBehaviour
                         Instantiate(boxPrefab, pos, Quaternion.identity);
                         Instantiate(goalPrefab, pos, Quaternion.identity);
                         break;
+                    case '6': Instantiate(spikePrefab, pos, Quaternion.identity); break;
+                    case '7': Instantiate(crumblingTilePrefab, pos, Quaternion.identity); break;
                 }
             }
         }

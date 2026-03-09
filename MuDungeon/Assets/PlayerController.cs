@@ -57,6 +57,33 @@ public class PlayerController : MonoBehaviour
             if (!box.TryPush(dir)) return;
         }
 
+        // 가시 체크 - 상자로 안 덮인 가시면 죽기
+        Spike spike = GetSpikeAt(nextPos);
+        if (spike != null && !spike.IsCovered())
+        {
+            // 플레이어 사망 → 재시작
+            Debug.Log("💀 가시에 찔렸다! 재시작...");
+            GameManager.Instance.ReloadLevel();
+            return;
+        }
+
+        // 현재 위치 무너지는 타일 체크
+        CrumblingTile tile = GetCrumblingTileAt(gridPos);
+        if (tile != null) tile.Crumble();
+
+        gridPos = nextPos;
+        transform.position = (Vector2)gridPos;
+        lastMoveTime = Time.time;
+
+        // 무너진 타일 위에 있으면 추락사
+        CrumblingTile nextTile = GetCrumblingTileAt(nextPos);
+        if (nextTile != null && nextTile.IsBroken())
+        {
+            Debug.Log("💀 바닥이 무너졌다! 재시작...");
+            GameManager.Instance.ReloadLevel();
+            return;
+        }
+
         // 이동
         gridPos = nextPos;
         transform.position = (Vector2)gridPos;
@@ -74,6 +101,26 @@ public class PlayerController : MonoBehaviour
     {
         Collider2D hit = Physics2D.OverlapPoint((Vector2)pos);
         if (hit != null) return hit.GetComponent<Box>();
+        return null;
+    }
+
+    Spike GetSpikeAt(Vector2Int pos)
+    {
+        Spike[] spikes = FindObjectsByType<Spike>(FindObjectsSortMode.None);
+        foreach (Spike spike in spikes)
+        {
+            if (spike.GetGridPos() == pos) return spike;
+        }
+        return null;
+    }
+
+    CrumblingTile GetCrumblingTileAt(Vector2Int pos)
+    {
+        CrumblingTile[] tiles = FindObjectsByType<CrumblingTile>(FindObjectsSortMode.None);
+        foreach (CrumblingTile tile in tiles)
+        {
+            if (tile.GetGridPos() == pos) return tile;
+        }
         return null;
     }
 }
