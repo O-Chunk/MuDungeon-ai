@@ -23,6 +23,22 @@ public class LevelManager : MonoBehaviour
         if (Instance == null) Instance = this;
     }
 
+    void AdjustCamera(LevelData data)
+    {
+        int rows = data.map.Length;
+        int cols = data.map[0].Length;
+
+        // 맵 중앙으로 카메라 이동
+        Camera.main.transform.position = new Vector3(
+            cols / 2f,
+            rows / 2f,
+            -10f
+        );
+
+        // 맵 크기에 맞게 카메라 줌 조정
+        Camera.main.orthographicSize = Mathf.Max(rows, cols) / 2f + 1f;
+    }
+
     void Start()
     {
         LoadLevel(currentLevel);
@@ -38,6 +54,7 @@ public class LevelManager : MonoBehaviour
 
         LevelData data = LevelData.Levels[index];
         BuildMap(data);
+        AdjustCamera(data); // 추가!
 
         // 오브젝트 찾기 (생성 후)
         boxes = FindObjectsByType<Box>(FindObjectsSortMode.None);
