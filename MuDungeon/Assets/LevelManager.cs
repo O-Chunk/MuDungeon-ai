@@ -12,6 +12,8 @@ public class LevelManager : MonoBehaviour
     public GameObject goalPrefab;
     public GameObject spikePrefab;
     public GameObject crumblingTilePrefab;
+    public GameObject bombTargetPrefab;
+    public GameObject woodenBoxPrefab;
 
     private Box[] boxes;
     private Goal[] goals;
@@ -21,22 +23,6 @@ public class LevelManager : MonoBehaviour
     void Awake()
     {
         if (Instance == null) Instance = this;
-    }
-
-    void AdjustCamera(LevelData data)
-    {
-        int rows = data.map.Length;
-        int cols = data.map[0].Length;
-
-        // 맵 중앙으로 카메라 이동
-        Camera.main.transform.position = new Vector3(
-            cols / 2f,
-            rows / 2f,
-            -10f
-        );
-
-        // 맵 크기에 맞게 카메라 줌 조정
-        Camera.main.orthographicSize = Mathf.Max(rows, cols) / 2f + 1f;
     }
 
     void Start()
@@ -54,7 +40,6 @@ public class LevelManager : MonoBehaviour
 
         LevelData data = LevelData.Levels[index];
         BuildMap(data);
-        AdjustCamera(data); // 추가!
 
         // 오브젝트 찾기 (생성 후)
         boxes = FindObjectsByType<Box>(FindObjectsSortMode.None);
@@ -82,6 +67,7 @@ public class LevelManager : MonoBehaviour
                     case '1': Instantiate(wallPrefab, pos, Quaternion.identity); break;
                     case '2': Instantiate(playerPrefab, pos, Quaternion.identity); break;
                     case '3': Instantiate(boxPrefab, pos, Quaternion.identity); break;
+                    case 'A': Instantiate(woodenBoxPrefab, pos, Quaternion.identity); break;
                     case '4': Instantiate(goalPrefab, pos, Quaternion.identity); break;
                     case '5':
                         Instantiate(boxPrefab, pos, Quaternion.identity);
@@ -89,6 +75,7 @@ public class LevelManager : MonoBehaviour
                         break;
                     case '6': Instantiate(spikePrefab, pos, Quaternion.identity); break;
                     case '7': Instantiate(crumblingTilePrefab, pos, Quaternion.identity); break;
+                    case '8': Instantiate(bombTargetPrefab, pos, Quaternion.identity); break;
                 }
             }
         }
@@ -96,28 +83,40 @@ public class LevelManager : MonoBehaviour
 
     public void CheckWin()
     {
-        boxes = FindObjectsByType<Box>(FindObjectsSortMode.None);
-        goals = FindObjectsByType<Goal>(FindObjectsSortMode.None);
+        Goal[] goals = FindObjectsByType<Goal>(FindObjectsSortMode.None);
+        BombTarget[] targets = FindObjectsByType<BombTarget>(FindObjectsSortMode.None);
 
-        foreach (Goal goal in goals)
+        // 소코반 스테이지 (Goal 있을 때)
+        if (goals.Length > 0)
         {
-            bool covered = false;
-            foreach (Box box in boxes)
+            boxes = FindObjectsByType<Box>(FindObjectsSortMode.None);
+            foreach (Goal goal in goals)
             {
-                if (box.GetGridPos() == goal.GetGridPos())
+                bool covered = false;
+                foreach (Box box in boxes)
                 {
-                    covered = true;
-                    break;
+                    if (box.GetGridPos() == goal.GetGridPos())
+                    {
+                        covered = true;
+                        break;
+                    }
                 }
+                if (!covered) return;
             }
-            if (!covered) return;
+            Debug.Log("🎉 스테이지 클리어!");
+            Invoke("NextLevel", 1f);
+            return;
         }
 
-        Debug.Log("🎉 스테이지 클리어!");
-        Invoke("NextLevel", 1f);
+        // 폭탄 스테이지 (BombTarget 있을 때)
+        if (targets.Length > 0)
+        {
+            // FuseManager 가 처리하니까 여기선 스킵
+            return;
+        }
     }
 
-    void NextLevel()
+    public void NextLevel()
     {
         // 현재 씬 오브젝트 전부 삭제 후 다음 레벨 로드
         // GameManager랑 Camera 빼고 삭제
@@ -126,6 +125,9 @@ public class LevelManager : MonoBehaviour
             if (obj != gameObject && obj.GetComponent<Camera>() == null)
                 Destroy(obj);
         }
+
+        // 폭탄 개수 초기화 추가!
+        FuseManager.Instance.ResetBombs();
         
         currentLevel++;
         LoadLevel(currentLevel);

@@ -10,14 +10,27 @@ public class Box : MonoBehaviour
         transform.position = (Vector2)gridPos;
     }
 
-    public bool TryPush(Vector2Int dir)
+    public bool TryPush(Vector2Int dir, int pushPower)
     {
         Vector2Int nextPos = gridPos + dir;
 
         // 밀려날 자리에 벽이나 다른 상자 있는지 체크
         Collider2D hit = Physics2D.OverlapPoint((Vector2)nextPos);
-        if (hit != null && (hit.CompareTag("Wall") || hit.GetComponent<Box>() != null))
-            return false; // 못 밀어
+        if (hit != null)
+        {
+            if (hit.CompareTag("Wall")) return false;
+
+            // 폭탄 위로 상자 못 밀게
+            if (hit.GetComponent<Bomb>() != null) return false;
+
+            // 연속 상자 밀기
+            Box nextBox = hit.GetComponent<Box>();
+            if (nextBox != null)
+            {
+                if (pushPower <= 1) return false; // 밀 힘이 없으면 못 밀어
+                if (!nextBox.TryPush(dir, pushPower - 1)) return false;
+            }
+        }
 
         // 이전 위치 가시 체크 - 상자 치우면 다시 위험
         UpdateSpikeAt(gridPos, false);
@@ -25,6 +38,9 @@ public class Box : MonoBehaviour
         // 이동
         gridPos = nextPos;
         transform.position = (Vector2)gridPos;
+
+        // 새 위치에 퓨즈 있으면 제거
+        FuseManager.Instance.RemoveFuseAt(gridPos);
 
         // 목표 지점 위에 있으면 색 변경
         UpdateColor();

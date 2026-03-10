@@ -1,17 +1,31 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections;
 
 public class PlayerController : MonoBehaviour
 {
     public float moveDelay = 0.15f; // 이동 딜레이 (너무 빠르지 않게)
     private float lastMoveTime;
     private Vector2Int gridPos; // 현재 칸 위치
+    public Vector2Int GetGridPos() => gridPos;
+    public int maxPushPower = 2; // Inspector에서 조절 가능
 
     void Start()
     {
         // 시작 위치를 그리드에 맞춤
         gridPos = Vector2Int.RoundToInt(transform.position);
-        transform.position = (Vector2)gridPos;
+        transform.position = new Vector3(gridPos.x, gridPos.y, 0f); // 정수로 강제
+        
+        // gridPos 가 (0,0) 이면 코루틴 실행 안 함
+        if (gridPos == Vector2Int.zero) return;
+
+        StartCoroutine(LayStartFuse());
+    }
+
+    IEnumerator LayStartFuse()
+    {
+        yield return null; // 한 프레임 대기
+        FuseManager.Instance.LayFuse(gridPos);
     }
 
     void Update()
@@ -49,12 +63,19 @@ public class PlayerController : MonoBehaviour
         // 벽 체크
         if (IsWall(nextPos)) return;
 
-        // 상자 체크
+        // 철 상자 체크
         Box box = GetBoxAt(nextPos);
         if (box != null)
         {
             // 상자 밀기 시도
-            if (!box.TryPush(dir)) return;
+            if (!box.TryPush(dir, maxPushPower)) return;
+        }
+
+        // 나무 상자 체크
+        WoodenBox woodenBox = GetWoodenBoxAt(nextPos);
+        if (woodenBox != null)
+        {
+            if (!woodenBox.TryPush(dir, maxPushPower)) return;
         }
 
         // 가시 체크 - 상자로 안 덮인 가시면 죽기
@@ -71,10 +92,6 @@ public class PlayerController : MonoBehaviour
         CrumblingTile tile = GetCrumblingTileAt(gridPos);
         if (tile != null) tile.Crumble();
 
-        gridPos = nextPos;
-        transform.position = (Vector2)gridPos;
-        lastMoveTime = Time.time;
-
         // 무너진 타일 위에 있으면 추락사
         CrumblingTile nextTile = GetCrumblingTileAt(nextPos);
         if (nextTile != null && nextTile.IsBroken())
@@ -88,6 +105,9 @@ public class PlayerController : MonoBehaviour
         gridPos = nextPos;
         transform.position = (Vector2)gridPos;
         lastMoveTime = Time.time;
+
+        // 이동한 자리에 도화선 깔기
+        FuseManager.Instance.LayFuse(gridPos);
     }
 
     bool IsWall(Vector2Int pos)
@@ -101,6 +121,13 @@ public class PlayerController : MonoBehaviour
     {
         Collider2D hit = Physics2D.OverlapPoint((Vector2)pos);
         if (hit != null) return hit.GetComponent<Box>();
+        return null;
+    }
+
+    WoodenBox GetWoodenBoxAt(Vector2Int pos)
+    {
+        Collider2D hit = Physics2D.OverlapPoint((Vector2)pos);
+        if (hit != null) return hit.GetComponent<WoodenBox>();
         return null;
     }
 

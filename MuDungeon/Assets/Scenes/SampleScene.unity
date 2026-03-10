@@ -257,6 +257,7 @@ GameObject:
   - component: {fileID: 518851305}
   - component: {fileID: 518851304}
   - component: {fileID: 518851303}
+  - component: {fileID: 518851306}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -282,6 +283,8 @@ MonoBehaviour:
   goalPrefab: {fileID: 1835272040388108955, guid: 814a8ad7feb3b274aa8298e30834b1a6, type: 3}
   spikePrefab: {fileID: 2651356498695479487, guid: 212bada208f64b048b83efbba0e7f06d, type: 3}
   crumblingTilePrefab: {fileID: 1806700619609446818, guid: 8f5b264269687ac4cab24f7589c97196, type: 3}
+  bombTargetPrefab: {fileID: 7618113290465153272, guid: bd41c88ecc44c8a419e8bf1615e2cb56, type: 3}
+  woodenBoxPrefab: {fileID: 1514409274897541784, guid: be1ff2e51955b4749a59e10eb40bd973, type: 3}
 --- !u!114 &518851304
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -309,6 +312,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &518851306
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 518851302}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 503a154cedb44a84ab16165cc9b6c30c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FuseManager
+  fusePrefab: {fileID: 8614757387927902389, guid: df6755c7875e6a14ebe06993ab4b6951, type: 3}
+  maxBombs: 2
+  explosionRange: 5
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -321,6 +339,7 @@ GameObject:
   - component: {fileID: 519420031}
   - component: {fileID: 519420029}
   - component: {fileID: 519420030}
+  - component: {fileID: 519420033}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -446,6 +465,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &519420033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 519420028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 912e6b358aa6a4a428d0cb6ad53dff07, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraFollow
+  smoothSpeed: 0.1
 --- !u!1 &619394800
 GameObject:
   m_ObjectHideFlags: 0

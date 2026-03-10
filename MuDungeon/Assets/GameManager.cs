@@ -18,6 +18,10 @@ public class GameManager : MonoBehaviour
             if (obj != gameObject && obj.GetComponent<Camera>() == null)
                 Destroy(obj);
         }
+
+        // 폭탄 개수 초기화
+        FuseManager.Instance.ResetBombs();
+
         LevelManager.Instance.LoadLevel(LevelManager.currentLevel);
     }
 
